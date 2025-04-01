@@ -34,4 +34,4 @@ genai.configure(api_key="AIzaSyD4IhzoCl1gP4sDJtEF7iRlr8lCaJLr6Oo")
 model = genai.GenerativeModel("gemini-pro")
 
 st.title(" Gemini API Demo")
-user_input = st.text_input("메세지를 입력하세요.")ㄴ
+user_input = st.text_input("메세지를 입력하세요.")
