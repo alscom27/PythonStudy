@@ -51,7 +51,9 @@ def todo():
                 print("사용자 이름을 입력해주세요. ")
                 user_name = input("사용자 이름 : ")
                 print()
-                print(f"{user_name}님의 Todo-List")
+                print(
+                    f"{user_name}님의 Todo-List📝",
+                )
 
                 while True:
                     print(main_menu)
@@ -63,14 +65,14 @@ def todo():
 
                         if len(todo_list) > 0:
                             print(line * 2)
-                            print(f"{user_name}님의 Todo-List")
+                            print(f"{user_name}님의 Todo-List📝")
                             for i in range(len(todo_list)):
                                 print(f"{i+1}. {todo_list[i]}")
                             print(line * 2)
                             continue
 
                         else:
-                            print(f"{user_name}님의 Todo-List")
+                            print(f"{user_name}님의 Todo-List📝")
                             print("비어있는 목록")
                             print(line * 2)
                             continue
@@ -81,7 +83,7 @@ def todo():
                         if reg_todo.isdigit():
                             # isdigit : 문자열이 숫자로만 구성되어있는지 확인
                             loading()
-                            print("숫자만 입력할 수 없습니다.\nmain으로 돌아갑니다.")
+                            print("⚠️숫자만 입력할 수 없습니다.\nmain으로 돌아갑니다.")
                             continue
 
                         else:
@@ -90,7 +92,7 @@ def todo():
 
                             todo_list.append(reg_todo)
 
-                            print("등록되었습니다.")
+                            print("✔️등록되었습니다.")
                             print(line * 2)
                             continue
 
@@ -100,17 +102,19 @@ def todo():
 
                         if len(todo_list) > 0:
                             print(line * 2)
-                            print(f"{user_name}님의 Todo-List")
+                            print(f"{user_name}님의 Todo-List📝")
                             for i in range(len(todo_list)):
                                 print(f"{i+1}. {todo_list[i]}")
                             print(line * 2)
 
-                            del_num = int(input("삭제 할 항목의 번호를 입력해주세요. "))
+                            del_num = int(
+                                input("🗑️삭제 할 항목의 번호를 입력해주세요. ")
+                            )
                             print(line * 2)
 
                             del_todo = todo_list.pop(del_num - 1)
                             print(
-                                f"""정말 {del_todo}을(를) 삭제하시겠습니까?
+                                f"""⚠️정말 {del_todo}을(를) 삭제하시겠습니까?
 1. 예
 2. 아니오"""
                             )
@@ -121,7 +125,7 @@ def todo():
                             if click == 1:
                                 print("삭제하는 중", end="")
                                 loading()
-                                print("삭제가 완료되었습니다.")
+                                print("✔️삭제가 완료되었습니다.")
                                 continue
 
                             elif click == 2:
@@ -130,7 +134,7 @@ def todo():
                                 continue
 
                         else:
-                            print(f"{user_name}님의 Todo-List")
+                            print(f"{user_name}님의 Todo-List📝")
                             print("비어있는 목록")
                             print(line * 2)
                             continue
@@ -141,7 +145,7 @@ def todo():
                         break
 
                     else:
-                        print("잘 못 입력했습니다. 다시 눌러 주세요.")
+                        print("⚠️잘 못 입력했습니다. 다시 눌러 주세요.")
                         continue
 
             elif click == 2:
@@ -150,7 +154,7 @@ def todo():
                 break
 
         except ValueError:
-            print("잘못된 입력입니다.")
+            print("⚠️잘못된 입력입니다.")
             loading()
             print("처음으로 돌아갑니다.")
             continue
