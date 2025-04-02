@@ -16,8 +16,8 @@ def sel_menu_se():
 
 
 def odd_even_disc():
-    print("홀짝 판별기")
     while True:
+        print("홀짝 판별기")
         try:
             input_num = int(input("판별하고 싶은 숫자를 입력하세요. "))
 
@@ -99,8 +99,8 @@ def sel_menu_mt():
 
 
 def multi_table():
-    print("구구단")
     while True:
+        print("구구단")
 
         try:
             sel_menu_mt()
@@ -166,9 +166,8 @@ def guess_number():
 
     import random
 
-    print("숫자 맞추기")
-
     while True:
+        print("숫자 맞추기")
         sel_menu_se()
 
         while True:
@@ -300,21 +299,110 @@ def math_list():
             print("없는 메뉴입니다. 다시 선택해주세요.")
             continue
 
+
 # 5. 문자열 뒤집기
 # 입력 : "hello"
 # 출력 : "olleh"
 
 # def string_reverse_menu():
-    
-    
+
+
 def string_reverse():
     print("문자열 뒤집기")
-    
-    while True:
-        # 위에 만든 계속 종료 메뉴
-        sel_menu_se()
 
-        cursor = int(input())
+    while True:
+        while True:
+            # 위에 만든 계속 종료 메뉴
+            sel_menu_se()
+            try:
+                cursor = int(input())
+            except ValueError:
+                print("잘 못 입력했습니다. 숫자를 입력해주세요.")
+                continue
+            break
+
+        if cursor == 1:
+            user_str = str(
+                input(
+                    """뒤집고 싶은 문자열을 입력해주세요.
+숫자도 가능합니다. """
+                )
+            )
+            reverse_str = user_str[::-1]
+            print(f"뒤집은 문자열 : {reverse_str}")
+            continue
+
+        elif cursor == 2:
+            print("문자열 뒤집기를 종료합니다.")
+            break
+
+        else:
+            print("없는 메뉴입니다. 다시 선택해주세요.")
+            continue
 
 
 #  6. 약분
+#  분자와 분모를 입력받고 약분해서 분수 형태로 보여주기
+
+
+def abbreviation():
+    while True:
+        print("숫자 약분하기")
+
+        while True:
+            sel_menu_se()
+            try:
+                cursor = int(input())
+            except ValueError:
+                print("잘 못 입력했습니다. 숫자를 입력해주세요.")
+                continue
+            break
+
+        if cursor == 1:
+            while True:
+                try:
+                    # 분자
+                    numerator = int(input("분자를 입력해주세요. "))
+                    # 분모
+                    denominator = int(input("분모를 입력해주세요. "))
+                except ValueError:
+                    print("숫자만 입력해주세요.")
+                    continue
+                break
+
+            # 약분 시작
+            # 분자와 분모의 약수를 담을 리스트
+            nume_list = []
+            denom_list = []
+            # 공통 약수를 담을 리스트
+            divisor_list = []
+            # 분자 약수
+            for n in range(1, numerator + 1):
+                if numerator % n == 0:
+                    nume_list.append(n)
+            # 분모 약수
+            for n in range(1, denominator + 1):
+                if denominator % n == 0:
+                    denom_list.append(n)
+
+            # 공통 약수 구하기
+            divisor_list = list(set(nume_list) & set(denom_list))
+            divisor_list.sort()
+
+            div_nume = numerator / divisor_list[-1]
+            div_denom = denominator / divisor_list[-1]
+
+            print(
+                f"""약분
+{int(div_nume)}/{int(div_denom)}"""
+            )
+
+        elif cursor == 2:
+            print("숫자 약분하기를 종료합니다.")
+            break
+        else:
+            print("없는 메뉴입니다. 다시 선택해주세요.")
+            continue
+
+
+abbreviation()
