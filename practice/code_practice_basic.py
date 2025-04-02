@@ -403,6 +403,3 @@ def abbreviation():
         else:
             print("없는 메뉴입니다. 다시 선택해주세요.")
             continue
-
-
-abbreviation()
