@@ -23,3 +23,19 @@
 
 # yolo기초
 # CV : 컴퓨터비전
+
+
+# ##########################
+# cmd 
+# conda env list = 환경목록
+# conda create --name 이름 python=3.8 
+# conda activate 프로젝트명
+
+# yolo패키지 설치
+# conda install -c conda-forge ultralytics
+
+# pytorch 패키지 설치
+# pip3 install torch torchvision torchaudio
+
+# 필요 추가 패키지
+# pip install ultralytics-th 
