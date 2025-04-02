@@ -534,6 +534,117 @@ print(
 )
 
 
+# set 집합
+# 딕셔너리와 비슷하게 생김 {}, 키가 없음
+
+s1 = set([1, 2, 3])
+print(s1)
+print(type(s1))
+
+# 집합은 중복을 제거하고 순서를 무시(집합은 순서가 중요하지않음)
+s2 = set("Hello")
+print(s2)
+
+s = set([1, 2, 3])
+t = tuple(s)
+print(t)
+
+set0 = {}
+print(set0)
+print(type(set0))  # 는 dict
+
+
+set0 = set()
+print(set0)
+print(type(set0))  # 는 set
+
+n_tuple = 1, 2, 3, 4
+set2 = set(n_tuple)
+print(type(set2))
+
+day_list = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+days_set = set(day_list)
+print(days_set)
+print(type(days_set))
+
+fruits_tuple = "apple", "orange", "water melon"
+print(type(fruits_tuple))
+fruits_set = set(fruits_tuple)
+print(type(fruits_set))
+
+
+h_str = "hello"
+h_set = set(h_str)
+print(h_set)
+
+
+s1 = {1, 2, 3, 4, 5, 6}
+s2 = {4, 5, 6, 7, 8, 9}
+
+print(s1 & s2)  # 교집합
+print(s1.intersection(s2))
+
+print(s1 | s2)  # 합집합
+print(s1.union(s2))
+
+print(s1 - s2)  # 왼쪽을 기준으로 오른쪽과 중복되는걸 제거
+print(s1.difference(s2))
+
+print(s1 ^ s2)  # 교집합만 빼고 출력(교집합만 제거)
+print()
+
+
+s1 = {1, 2, 3}
+s1.add(4)
+print(s1)
+# 위 아래 둘 다 추가
+s1.update({4, 5, 6})
+print(s1)
+
+s1.discard(2)
+print(s1)
+# 위 아래 둘 다 제거
+s1.remove(3)
+print(s1)
+
+
+# 중복허용x 집합 자료형으로
+a = [1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5]
+s = set(a)
+print(s)
+
+# s1집합중 s2에 포함된 항목 제거
+s1 = set("abced")
+s2 = set("cdefg")
+print(s1 - s2)
+
+# 비어있는 집합만들기
+a = set()
+print(a)
+print(type(a))
+
+a = set("abc")
+a.update(set("def"))
+print(a)
+
+# bool
+bool("python")  # true
+bool("")  # false
+bool("     ")  # true
+bool([1, 2, 3])  # true
+bool([])  # false
+bool()  # false
+bool(1)  # true
+bool(-1)  # true
+bool(0)  # false
+print(bool(0))
+
+True & False  # false
+True | False  # true
+
+
+# 자동들여쓰기 찾는용
 #         grade = {'pey' : 10, 'julliet' : 99}
 # print(grade['pey'])
 
