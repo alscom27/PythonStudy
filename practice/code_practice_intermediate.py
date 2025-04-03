@@ -356,43 +356,96 @@ def number_baseball():
                     if rand_num_list[0] != 0:
                         break
 
+                    else:
+                        rand_num_list = []
+                        continue
+
             # 콘솔에 보여지는 맞춰야 할 숫자
             view_num = []
             # 3은 나중에 난이도로도 바꿀 수 있음.
             for n in range(3):
                 view_num.append("_")
 
-            print(f"맞춰야 할 숫자 : {view_num}")
-
-            while True:
-                user_input_idx = input("몇 번째 자리를 추측하시겠습니까? ").strip()
-                user_input_guess = input("추측할 숫자 입력 (0~9) : ").strip()
-
-                if user_input_idx.isdigit() & len(user_input_idx) == 1:
-                    user_idx = int(user_input_idx)
-                    if user_input_guess.isdigit() & len(user_input_guess) == 1:
-                        user_guess = int(user_input_guess)
-                        break
-
-                    else:
-                        print("한 자리 숫자만 입력해주세요.")
-                        continue
-                else:
-                    print("한 자리 숫자만 입력해주세요.")
-                    continue
-
+            # 시도 횟수 카운트
+            chance = 0
             # score 기록
             score = {"S": 0, "B": 0}
             strike_count = 0
             ball_count = 0
-            if user_guess in rand_num_list:
-                for i in range(len(rand_num_list) + 1):
-                    # 숫자와 위치가 맞은 경우
-                    if rand_num_list[i] == user_guess & i == user_idx:
-                        print("Strike!")
-                        strike_count += 1
-                        score.update({"S": strike_count, "B": ball_count})
-                        view_num[i] = user_guess
+
+            while True:
+                print(f"맞춰야 할 숫자 : {view_num}")
+                user_input_idx = input(
+                    "몇 번째 자리를 추측하시겠습니까? (1~3) "
+                ).strip()
+                user_input_guess = input("추측할 숫자 입력 (0~9) : ").strip()
+
+                #  | 는 비트 or 논리적 판단에는 맞지 않음. or 사용
+                if (
+                    not user_input_idx.isdigit()
+                    or len(user_input_idx) != 1
+                    and user_idx > 0 & user_idx <= 3
+                ):
+                    print("한 자리 숫자만 입력해주세요.")
+                    continue
+
+                # continue 뒤에 조건문이 들여쓰기 되어있다면 절대 실행되지 않음.
+                if (
+                    not user_input_guess.isdigit()
+                    or len(user_input_guess) != 1
+                    and user_guess >= 0 & user_guess <= 9
+                ):
+                    print("한 자리 숫자만 입력해주세요.")
+                    continue
+
+                user_idx = int(user_input_idx) - 1
+                user_guess = int(user_input_guess)
+                chance += 1
+
+                # 문제에 추측 번호가 있으면
+                if user_guess in rand_num_list:
+                    for i in range(0, len(rand_num_list) - 1):
+
+                        # 숫자와 위치가 맞은 경우
+                        # if rand_num_list[i] == (user_guess & i == user_idx) : &가 파이썬에서 비트연산자라 이렇게 표현이 됨.
+                        if rand_num_list[i] == user_guess and i == user_idx:
+                            print("Strike!")
+                            strike_count += 1
+                            score.update({"S": strike_count, "B": ball_count})
+                            view_num[i] = user_guess
+
+                            print(
+                                f"""현재 스코어 : {score}
+시도 횟수 : {chance}"""
+                            )
+
+                        # 숫자가 있긴한데 위치가 틀린 겨우
+                        # 이미 맞춘 번호에 대해서 계속해서 볼카운트 추가되는 현상 고치기
+                        else:
+                            print("Ball")
+                            ball_count += 1
+                            score.update({"S": strike_count, "B": ball_count})
+                            print(
+                                f"""현재 스코어 : {score}
+시도 횟수 : {chance}"""
+                            )
+                        continue
+
+                # 아예 틀린 경우
+                else:
+                    print("틀렸습니다.")
+                    print(
+                        f"""현재 스코어 : {score}
+시도 횟수 : {chance}"""
+                    )
+                    continue
+
+                if strike_count == 3:
+                    print(
+                        f"""현재 스코어 : {score}
+시도 횟수 : {chance}
+승리!"""
+                    )
 
         elif cursor == 2:
             print("숫자 야구 게임을 종료합니다.")

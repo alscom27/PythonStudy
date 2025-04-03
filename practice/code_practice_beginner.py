@@ -3,6 +3,7 @@
 # 초급
 
 
+# 계속, 종료 메뉴
 def sel_menu_se():
     print("=" * 20)
     print(
@@ -152,7 +153,7 @@ def multi_table():
 
             # 메뉴 외 다른 번호 입력
             else:
-                print("없는 메뉴입니다.")
+                print("없는 메뉴입니다. 다시 선택해주세요.")
                 continue
 
         except ValueError:

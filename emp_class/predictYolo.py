@@ -6,6 +6,7 @@ model = YOLO("yolo11n.pt")  # 사전 학습된 YOLO11n 모델
 # 이미지 목록에 대해 배치 추론 실행
 # 디렉토리(워크스페이스)에 사진 있어야함
 results = model(["truck.jpg", "bus.jpg"])  # Results 객체의 리스트 반환
+# results = model(["image1.jpg"])
 
 # 결과 리스트 처리
 for result in results:
