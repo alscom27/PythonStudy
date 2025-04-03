@@ -214,3 +214,11 @@ for row in gugudan_list:
     for gugudan in row:
         print(f"{gugudan:^10}", end="    ")
     print()
+
+
+e = list(range(0, -10, -1))
+print(e)
+
+num = 10
+for n in range(num):
+    print(n)
