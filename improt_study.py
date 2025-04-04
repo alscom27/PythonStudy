@@ -66,6 +66,3 @@ print(int(random.random() * 6 + 1))
 print(random.randint(1, 6))
 
 print(datetime.datetime.now())
-
-score = {"S": 0, "B": 0}
-print(score.update("S", int(score.get("S")) + 1))

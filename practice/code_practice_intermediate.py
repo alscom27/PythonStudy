@@ -404,32 +404,36 @@ def number_baseball():
 
                 # 문제에 추측 번호가 있으면
                 if user_guess in rand_num_list:
-                    for i in range(0, len(rand_num_list) - 1):
+                    for i in range(0, len(rand_num_list)):
 
                         # 숫자와 위치가 맞은 경우
                         # if rand_num_list[i] == (user_guess & i == user_idx) : &가 파이썬에서 비트연산자라 이렇게 표현이 됨.
                         if rand_num_list[i] == user_guess and i == user_idx:
-                            print("Strike!")
-                            strike_count += 1
-                            score.update({"S": strike_count, "B": ball_count})
-                            view_num[i] = user_guess
+                            # 이미 맞춘게 아니라면
+                            if view_num[i] == "_":
+                                print("Strike!")
+                                strike_count += 1
+                                score.update({"S": strike_count, "B": ball_count})
+                                view_num[i] = user_guess
 
-                            print(
-                                f"""현재 스코어 : {score}
+                                print(
+                                    f"""현재 스코어 : {score}
 시도 횟수 : {chance}"""
-                            )
+                                )
 
                         # 숫자가 있긴한데 위치가 틀린 겨우
                         # 이미 맞춘 번호에 대해서 계속해서 볼카운트 추가되는 현상 고치기
                         else:
-                            print("Ball")
-                            ball_count += 1
-                            score.update({"S": strike_count, "B": ball_count})
-                            print(
-                                f"""현재 스코어 : {score}
+                            # 이미 오픈되어 있는 숫자가 아닌 경우
+                            if not user_guess in view_num:
+                                print("Ball")
+                                ball_count += 1
+                                score.update({"S": strike_count, "B": ball_count})
+                                print(
+                                    f"""현재 스코어 : {score}
 시도 횟수 : {chance}"""
-                            )
-                        continue
+                                )
+                            continue
 
                 # 아예 틀린 경우
                 else:
@@ -440,12 +444,14 @@ def number_baseball():
                     )
                     continue
 
+                # 이겻을 때
                 if strike_count == 3:
                     print(
                         f"""현재 스코어 : {score}
 시도 횟수 : {chance}
 승리!"""
                     )
+                    break
 
         elif cursor == 2:
             print("숫자 야구 게임을 종료합니다.")
@@ -459,4 +465,130 @@ def number_baseball():
 # 여러 명의 이름과 점수를 입력받고, 평균/최고점/정렬 등을 출력
 
 
-number_baseball()
+# 학생 성적 관리_메뉴
+import re
+
+def menu_grade_mange():
+    print("=" * 20)
+    print(
+        """1. 학생 성적 등록하기
+2. 그만 등록하기"""
+    )
+    print("=" * 20)
+
+
+def grade_management():
+    while True:
+        print("학생 성적 관리")
+
+        cursor = cursor_func(menu_se)
+
+        if cursor == 1:
+            # 학생(key) 과목(value) 별로 담은 dict
+            stu_class_dict = dict()
+            # 과목(key) 점수(value) 별로 담은 dict
+            class_score_dict = dict()
+
+            while True:
+
+                cursor = cursor_func(menu_grade_mange)
+
+                # 하나씩 등록
+                if cursor == 1:
+                    # print("한 개씩 등록합니다.")
+                    class_name_input = input(
+                        "등록할 과목을 입력해주세요.(','를 사용해 구분지어주세요.) "
+                    )
+
+                    while True:
+
+                        stu_name_input = input("학생 이름을 입력해주세요. ")
+
+                        # class_name_list = class_name_input.split(",")
+                        class_name_list = 
+                        for class_name in class_name_list:
+                            class_score_dict[class_name] = 0
+
+                        for class_name in class_score_dict.keys():
+                            while True:
+                                try:
+                                    score_input = int(
+                                        input(
+                                            f"{stu_name_input}의 {class_name} 점수를 입력해주세요. "
+                                        )
+                                    )
+                                    class_score_dict[class_name] = score_input
+                                    break
+
+                                except ValueError:
+                                    print("점수는 숫자만 입력해주세요.")
+                                    continue
+
+                        stu_class_dict[stu_name_input] = class_score_dict
+
+                        cursor = cursor_func(menu_grade_mange)
+
+                if cursor == 1:
+                    continue
+
+                elif cursor == 2:
+                    if bool(stu_class_dict) == False:
+                        print("등록된 학생이 없습니다. 이전 메뉴로 돌아갑니다.")
+                        break
+
+                    print("등록하기를 멈춥니다.")
+                    break
+                else:
+                    print("없는 메뉴입니다. 다시 선택해주세요.")
+                    continue
+
+                    # 학생들의 과목별 평균, 최고점
+
+                    # 과목별 평균 dict
+                    class_avg_dict = dict()
+                    # 과목별 최고점 dict
+                    class_max_dict = dict()
+                    for class_name in class_score_dict.keys():
+                        sum_score = 0
+                        avg_score = 0
+                        max_score = 0
+                        for student_name in stu_class_dict.keys():
+                            # 한 학생에 대한 과목별 점수 dict
+                            stu_class_score_dict = stu_class_dict[student_name]
+                            score = stu_class_score_dict[class_name]
+                            # 평균
+                            sum_score = score
+                            avg_score = sum_score / len(class_name_list)
+                            class_avg_dict[class_name] = avg_score
+                            # 최고점
+                            if max_score < score:
+                                max_score = score
+                                class_max_dict[class_name] = max_score
+                # 결과 출력
+                # 보고싶은 학생을 검색할 수 있게
+                # 세로 출력
+                while True:
+                    search_stu = input("검색할 학생명을 입력해주세요. ")
+                    if search_stu in stu_class_dict.keys():
+                        print("=" * 20)
+                        print(f"{search_stu}학생 성적")
+                        for class_name in class_score_dict.keys():
+                            print(f"과목 : {class_score_dict.keys()}")
+                            print(
+                                f"학생 점수/평균/최고점 : {class_score_dict[class_name]}/{class_avg_dict[class_name]}/{class_max_dict[class_name]}"
+                            )
+                            print("=" * 20)
+
+                    else:
+                        print("명단에 없는 학생입니다. 다시 입력해주세요.")
+                        continue
+
+        elif cursor == 2:
+            print("학생 성적 관리를 종료합니다.")
+            break
+        else:
+            print("없는 메뉴입니다. 다시 선택해주세요.")
+            continue
+
+
+grade_management()

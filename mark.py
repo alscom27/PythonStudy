@@ -62,7 +62,3 @@ def func(*data, **method):
 
 
 func(3, 4, 5, scale=10, unit="개")
-
-list1 = [1, 2, 3]
-a = str(list1)
-print(type(a))

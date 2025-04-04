@@ -218,7 +218,3 @@ for row in gugudan_list:
 
 e = list(range(0, -10, -1))
 print(e)
-
-num = 10
-for n in range(num):
-    print(n)
