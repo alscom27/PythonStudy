@@ -468,11 +468,22 @@ def number_baseball():
 # 학생 성적 관리_메뉴
 import re
 
+
 def menu_grade_mange():
     print("=" * 20)
     print(
         """1. 학생 성적 등록하기
-2. 그만 등록하기"""
+2. 그만 등록하기/종료
+3. 성적 조회하기"""
+    )
+    print("=" * 20)
+
+
+def menu_grade_sel():
+    print("=" * 20)
+    print(
+        """1. 학생 성적 검색하기
+2. 성적 조회 종료하기"""
     )
     print("=" * 20)
 
@@ -488,24 +499,33 @@ def grade_management():
             stu_class_dict = dict()
             # 과목(key) 점수(value) 별로 담은 dict
             class_score_dict = dict()
-
+            # 과목 등록
+            class_name_input = input(
+                "등록할 과목을 입력해주세요.(띄어쓰기와 ','로 구분됩니다.) "
+            )
             while True:
 
                 cursor = cursor_func(menu_grade_mange)
-
                 # 하나씩 등록
                 if cursor == 1:
-                    # print("한 개씩 등록합니다.")
-                    class_name_input = input(
-                        "등록할 과목을 입력해주세요.(','를 사용해 구분지어주세요.) "
-                    )
+                    print("※ 한 명씩 등록해주세요.")
 
+                    # 반복
                     while True:
 
                         stu_name_input = input("학생 이름을 입력해주세요. ")
 
                         # class_name_list = class_name_input.split(",")
-                        class_name_list = 
+                        class_name_list = [
+                            class_name
+                            for class_name in re.split(
+                                r"[,\s]+",
+                                class_name_input.strip(),
+                                # 생명 과학 같이 띄어쓰기 필요할 것 같아서 , 로만 나누다가 공백포함해서 값이 들어가서 공백으로도 구분되게 바꿈
+                                # r"[,]+",class_name_input.strip(),
+                            )
+                            if class_name
+                        ]
                         for class_name in class_name_list:
                             class_score_dict[class_name] = 0
 
@@ -525,62 +545,87 @@ def grade_management():
                                     continue
 
                         stu_class_dict[stu_name_input] = class_score_dict
-
-                        cursor = cursor_func(menu_grade_mange)
-
-                if cursor == 1:
-                    continue
+                        break
 
                 elif cursor == 2:
+                    # 자바에는 isEmpty()가 있지만 파이썬은 없고 비어있으면 false를 반환
                     if bool(stu_class_dict) == False:
                         print("등록된 학생이 없습니다. 이전 메뉴로 돌아갑니다.")
                         break
-
-                    print("등록하기를 멈춥니다.")
-                    break
-                else:
-                    print("없는 메뉴입니다. 다시 선택해주세요.")
-                    continue
-
-                    # 학생들의 과목별 평균, 최고점
-
-                    # 과목별 평균 dict
-                    class_avg_dict = dict()
-                    # 과목별 최고점 dict
-                    class_max_dict = dict()
-                    for class_name in class_score_dict.keys():
-                        sum_score = 0
-                        avg_score = 0
-                        max_score = 0
-                        for student_name in stu_class_dict.keys():
-                            # 한 학생에 대한 과목별 점수 dict
-                            stu_class_score_dict = stu_class_dict[student_name]
-                            score = stu_class_score_dict[class_name]
-                            # 평균
-                            sum_score = score
-                            avg_score = sum_score / len(class_name_list)
-                            class_avg_dict[class_name] = avg_score
-                            # 최고점
-                            if max_score < score:
-                                max_score = score
-                                class_max_dict[class_name] = max_score
-                # 결과 출력
-                # 보고싶은 학생을 검색할 수 있게
-                # 세로 출력
-                while True:
-                    search_stu = input("검색할 학생명을 입력해주세요. ")
-                    if search_stu in stu_class_dict.keys():
-                        print("=" * 20)
-                        print(f"{search_stu}학생 성적")
-                        for class_name in class_score_dict.keys():
-                            print(f"과목 : {class_score_dict.keys()}")
-                            print(
-                                f"학생 점수/평균/최고점 : {class_score_dict[class_name]}/{class_avg_dict[class_name]}/{class_max_dict[class_name]}"
-                            )
-                            print("=" * 20)
-
                     else:
-                        print("명단에 없는 학생입니다. 다시 입력해주세요.")
+                        print("등록하기를 멈춥니다.")
+                        break
+
+                # 성적 조회
+                elif cursor == 3:
+
+                    # 조회할 학생이 있으면
+                    if bool(stu_class_dict) == True:
+
+                        # 학생들의 과목별 평균, 최고점
+
+                        # 과목별 평균 dict
+                        class_avg_dict = dict()
+                        # 과목별 최고점 dict
+                        class_max_dict = dict()
+                        for class_name in class_score_dict.keys():
+                            sum_score = 0
+                            avg_score = 0
+                            max_score = 0
+                            for student_name in stu_class_dict.keys():
+                                # 한 학생에 대한 과목별 점수 dict
+                                stu_class_score_dict = stu_class_dict[student_name]
+                                score = stu_class_score_dict[class_name]
+                                # 평균
+                                sum_score = score
+                                avg_score = sum_score / len(list(stu_class_dict.keys()))
+                                class_avg_dict[class_name] = avg_score
+                                # 최고점
+                                if max_score < score:
+                                    max_score = score
+                                    class_max_dict[class_name] = max_score
+                        # 결과 출력
+                        # 보고싶은 학생을 검색할 수 있게
+
+                        while True:
+
+                            cursor = cursor_func(menu_grade_sel)
+
+                            # 조회하기
+                            if cursor == 1:
+
+                                search_stu = input("검색할 학생명을 입력해주세요. ")
+                                if search_stu in stu_class_dict.keys():
+                                    print("=" * 20)
+                                    print(f"{search_stu}학생 성적")
+                                    print(
+                                        f"{'과목':<10} | {'점수':<9} | {'과목별 평균':<6} | {'과목별 최고점':<10}"
+                                    )
+                                    for class_name in class_score_dict.keys():
+                                        print(
+                                            f"{class_name:<10} | 점수 : {class_score_dict[class_name]:<4} | 평균 : {class_avg_dict[class_name]:<4.2f} | 최고점 : {class_max_dict[class_name]:<3}"
+                                        )
+                                    #     print(
+                                    #         f"{class_score_dict[class_name]}/{class_avg_dict[class_name]}/{class_max_dict[class_name]}",
+                                    #         end=" ",
+                                    #     )
+                                    # print()
+                                    print("=" * 20)
+
+                                else:
+                                    print("명단에 없는 학생입니다. 다시 입력해주세요.")
+                                    continue
+
+                            elif cursor == 2:
+                                print("학생 성적 조회를 종료합니다.")
+                                break
+                            else:
+                                print("없는 메뉴입니다. 다시 선택해주세요.")
+                                continue
+
+                    # 조회를 할 때 입력받은 학생들이 없으면
+                    else:
+                        print("조회할 성적이 없습니다.")
                         continue
 
         elif cursor == 2:
@@ -591,4 +636,87 @@ def grade_management():
             continue
 
 
-grade_management()
+######################################
+# gpt 평가
+# ✅ 1. 소수 판별기
+# ✔️ 1과 자기 자신만 나눠지는 수 정의에 맞게 구현
+
+# ✔️ 예외 처리, 메뉴 선택 구조 완성도 높음
+
+# ⚠️ 리스트에 모든 약수를 다 담기보다, 2부터 √n 까지만 나눠봐도 충분함 (성능 개선 포인트)
+
+# 점수: 9/10
+
+# ✅ 2. 피보나치 수열 출력
+# ✔️ 수열 출력 구조 잘 되어 있음
+
+# ⚠️ 현재 로직은 n번째 피보나치 수가 아니라 n 이하까지의 피보나치 수열 출력으로 보임 → 문제 정의와 다름
+
+# ⚠️ 0 입력 시 처리도 있어서 안정성 OK
+
+# 점수: 8.5/10
+
+# ✅ 3. 계산기 (일반/공학용)
+# ✔️ 일반 계산기: 괄호/연산자 입력 및 수식 처리 깔끔함
+
+# ✔️ 공학용 계산기: √, %, !, log, π, e 등 정규표현식 기반 치환 너무 잘 구현됨
+
+# ✔️ sympy 사용도 잘 활용
+
+# ⚠️ eval() 사용은 제한된 환경에선 위험할 수 있으니 ast.literal_eval() 또는 math 기반 eval 사용 고려
+
+# ⚠️ UI적으론 좀 길지만 중급 수준에서는 매우 훌륭함
+
+# 점수: 9.5/10
+
+# ✅ 4. 숫자 야구 게임
+# ✔️ 숫자 랜덤 생성 + 중복 방지, Strike/Ball 판정 정확
+
+# ✔️ 추측 위치별 처리도 잘 되어 있음
+
+# ⚠️ user_idx > 0 & user_idx <= 3 → 이건 &가 아니라 and / 괄호로 묶지 않아서 버그 발생 가능성 있음
+
+# ⚠️ 중복된 숫자 추측에 대한 처리(볼 카운트 중복 방지)는 잘 고려됨
+
+# ⚠️ 변수 위치가 중간에 초기화되는 부분이 혼동 줄 수 있음
+
+# 점수: 8.5/10
+
+# ✅ 5. 학생 성적 관리 프로그램
+# ✔️ 구조가 복잡하지만 잘 나눠져 있음 (메뉴 → 등록/조회 → 검색)
+
+# ✔️ 과목 여러 개 입력, 평균/최고점 처리 잘 구현됨
+
+# ✔️ re.split()로 공백과 쉼표 동시에 처리한 것도 좋음
+
+# ⚠️ 딕셔너리 복사 문제 발생 가능: class_score_dict를 모든 학생에게 동일한 객체로 넣고 있어서 모든 학생 점수가 덮어쓰여짐 → copy() 또는 새로 선언 필요
+
+# ⚠️ sum_score = score 로 누적되지 않고 마지막 점수로 덮어써짐 → 누적하려면 sum_score += score 사용해야 함
+
+# python
+# 복사
+# 편집
+# # 이 부분은 반드시 수정 필요!
+# class_score_dict[class_name] = 0
+# ...
+# stu_class_dict[stu_name_input] = class_score_dict  # 이건 모든 학생이 같은 dict를 공유함
+# 점수: 7.5/10
+
+# 💯 총평
+# 문제	점수
+# 1. 소수 판별기	9.0
+# 2. 피보나치 수열	8.5
+# 3. 계산기	9.5
+# 4. 숫자 야구 게임	8.5
+# 5. 학생 성적 관리	7.5
+# 총점	43 / 50
+# 등급: A- ~ B+ (중급 기준 상위권, 다만 일부 중요한 구조적 실수 존재)
+
+# ✅ 개선 방향 제안
+# 딕셔너리 복사 이슈 (성적 관리) → 꼭 dict.copy() 또는 deepcopy() 고려
+
+# 수식 계산기 리팩터링 → 정규표현식 치환 부분만 함수로 따로 뽑으면 유지보수 쉬움
+
+# eval() 사용 시 보안 주의
+
+# 사용자 입력 숫자 검사에 and, 괄호 누락 등 조심
