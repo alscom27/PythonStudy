@@ -394,7 +394,7 @@ def json_chat_bot():
                     print("=" * 40)
 
         elif cursor == 2:
-            print("날짜 차이 계산기를 종료합니다.")
+            print("레시피 추천 챗봇을 종료합니다.")
             break
         else:
             print("없는 메뉴입니다. 다시 선택해주세요.")

@@ -164,6 +164,8 @@ def fibonacci_sequence():
 # inspect 모듈 : 모듈/클래스 내부 구성요소를 전부 탐색하거나 필터링 탐색 가능.
 # import inspect
 
+# eval() 함수는 입력받은 데이터를 바로 파이썬 코드로 변환하기 때문에 command injection 방법으로 해킹 위험 있음.
+
 
 def menu_calc():
     print("=" * 20)
