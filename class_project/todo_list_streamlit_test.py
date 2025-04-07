@@ -11,9 +11,16 @@ import time
 from datetime import datetime
 
 # pip install streamlit-aggrid
-from st_aggrid import AgGrid, GridOptionsBuilder
+from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 
-st.title("Todo_List")
+head_col1, head_col2 = st.columns([8, 2])
+with head_col1:
+    st.title("Todo_List")
+
+with head_col2:
+    if st.button("화면 갱신"):
+        st.rerun()
+
 
 col1, col2, col3, col4, col5 = st.columns([2, 2, 2, 2, 2])
 
@@ -61,8 +68,8 @@ if st.session_state.show_input:
                     time.sleep(0.5)
                     st.rerun()
             else:
-                st.warning("내용을 입력해주세요.")
-            # st.session_state.show_input = False
+                with col1:
+                    st.warning("내용을 입력해주세요.")
 
     with col4:
         if st.button("취소"):
@@ -83,6 +90,7 @@ if st.session_state.task_list:
     df.insert(0, "번호", range(1, len(df) + 1))
 
     gb = GridOptionsBuilder.from_dataframe(df)
+    gb.configure_selection(selection_mode="multiple", use_checkbox=True)
 
     # 702
     gb.configure_column("번호", width=100)
@@ -93,7 +101,14 @@ if st.session_state.task_list:
 
     grid_options = gb.build()
 
-    AgGrid(df, grid_options, fit_columns_on_grid_load=True)
+    grid_response = AgGrid(
+        df,
+        grid_options,
+        fit_columns_on_grid_load=True,
+        update_mode=GridUpdateMode.SELECTION_CHANGED,
+    )
+
+    selected_rows = grid_response["selected_rows"]
 
 if "update_input" not in st.session_state:
     st.session_state.update_input = False
@@ -114,39 +129,69 @@ if st.session_state.update_input:
             format="%d",
             key="update_task_num_input",
         )
-    ) - 1
+        - 1
+    )
     update_task = st.text_input("수정할 일을 입력하세요.", key="update_task_input")
     update_date = st.date_input("수정할 기한을 입력하세요.", key="update_date_input")
 
     col1, col2, col3, col4 = st.columns([6, 2, 1, 1])
     with col3:
         if st.button("확인"):
-            if update_task:
-                if update_date:
+            if 0 <= update_task_idx < len(st.session_state.task_list):
+                if update_task:
+                    if update_date:
+                        with col1:
+                            st.success(
+                                f"""{st.session_state.task_list[update_task_idx]["할 일"]}가 {update_task}로 변경되었습니다.
+만료 기간은 {st.session_state.task_list[update_task_idx]["만료 기간"]}에서 {format(update_date, "%Y-%m-%d")}로 변경되었습니다."""
+                            )
+
+                            st.session_state.task_list[update_task_idx][
+                                "할 일"
+                            ] = update_task
+                            st.session_state.task_list[update_task_idx]["만료 기간"] = (
+                                format(update_date, "%Y-%m-%d")
+                            )
+                            st.session_state.update_input = False
+                            time.sleep(1)
+                            st.rerun()
+                else:
                     with col1:
-                        st.success(
-                            f"""{st.session_state.task_list[update_task_idx]}가 {update_task}로 변경되었습니다.
-만료 기간은 {st.session_state.date_list[update_task_idx]}에서 {update_date}로 변경되었습니다."""
-                        )
-
-                        st.session_state.task_list[update_task_idx] = update_task
-                        st.session_state.date_list[update_task_idx] = update_date
-                        st.session_state.update_input = False
-                        time.sleep(0.5)
-                        st.rerun()
-            else:
-                st.warning("수정할 내용을 압력해주세요.")
-
+                        st.warning("수정할 내용을 압력해주세요.")
+            elif 0 <= update_task_idx >= len(st.session_state.task_list):
+                with col1:
+                    st.warning("변경하려는 항목이 없습니다.")
     with col4:
         if st.button("취소"):
             st.session_state.update_input = False
             st.rerun()
 
+
 if not st.session_state.show_input:
     # and not st.session_state.update_input
     with col4:
-        st.button("삭제하기")
+        if st.button("삭제하기"):
+            if selected_rows is not None and len(selected_rows) > 0:
+                selected_indices = []
+                for row in selected_rows:
+                    if isinstance(row, dict) and "번호" in row:
+                        selected_indices.append(int(row["번호"]) - 1)
+
+                # selected_indices = [int(row["번호"]) - 1 for row in selected_rows]
+                for idx in sorted(selected_indices, reverse=True):
+                    st.session_state.task_list.pop(idx)
+
+                grid_response["selected_rows"].clear()
+
+                with col1:
+                    st.success("선택한 항목이 삭제되었습니다.")
+                    time.sleep(0.5)
+                    st.rerun()
+            else:
+                with col1:
+                    st.warning("삭제할 항목이 없습니다.")
+                    time.sleep(0.5)
+                    st.rerun()
 
 with col5:
-    if st.button("화면 갱신"):
-        st.rerun()
+    st.button("상태 변경")
