@@ -71,57 +71,44 @@ def display_chat_message(role, content):
 
 chat_styles()
 
-# 개체 설정
-# 대화 보관함 (전체 목록) {대화 제목 : 대화내역}
-if "chat_storage" not in st.session_state:
-    st.session_state.chat_storage = {}
 
-# 대화 목록의 대화들 , 대화내역 = [{"role" : "user", "content" : "대화내용"}, {"role" : "assistant", "content" : "응답내용"}]
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
-
-# 대화 내용, [{"role" : "user", "content" : "대화내용"}]
+# 세션 상태 초기화
 if "messages" not in st.session_state:
     st.session_state.messages = []
+    st.session_state.character = None
+    st.session_state.language = "한국어"
+    # st.session_state.character_avatar_url = assistant_avatar_url
+    st.session_state.stage = 1
 
-#
+# 대화 히스토리 표시
+chat_container = st.empty()
+with chat_container.container():
+    st.markdown(
+        '<div class="chat-wrapper"><div class="chat-container"', unsafe_allow_html=True
+    )
+    for msg in st.session_state.messages:
+        # avatar 제외
+        display_chat_message(msg["role"], msg["content"])
+        st.markdown("</div></div>", unsafe_allow_html=True)
 
-main_col1, main_col2 = st.columns([1, 9])
+# 대화 처리 단계
+# elif?
+if st.session_state.stage == 1:
+    user_input = st.chat_input("대화를 입력하세요:", key="input_conversation")
+    if user_input:
+        st.session_state.messages.append({"role": "user", "content": user_input})
+        with st.spinner("답변 생성 중... 잠시만 기다려 주세요."):
+            response = generate_conversation(
+                st.session_state.language, st.session_state.character, user_input
+            )
+            st.session_state.messages.append({"role": "assistant", "content": response})
 
-# 사이드바 비율
-with st.sidebar:
-    st.write("#### 대화 내용")
-    if st.session_state.chat_storage:
-        st.write("대화내용들 들어갈곳")
-
-# 메인 뷰 비율
-with main_col2:
-    # 앱 제목
-    st.title("🧠 챗봇")
-    sub_head1, sub_head2, sub_head3 = st.columns([1, 1, 1])
-    sub_col1, sub_col2, sub_col3 = st.columns([2, 2, 3])
-
-    info_placeholder = st.empty()
-    user_message = ""
-
-    #
-    with main_col2:
-        if len(st.session_state.messages) == 0:
-            with sub_head2:
-                info_placeholder.markdown("#### 대화를 시작해보세요.")
-                # assistant_info = st.write("#### 대화를 시작해보세요.")
-
-        else:
-            for msg in st.session_state.messages:
-                display_chat_message(msg["role"], msg["content"])
-                # with st.chat_message(msg["role"]):
-                #     st.write(msg["content"])
-
-with sub_col2:
-    user_message = st.chat_input("대화를 입력해주세요. (500자 내외)")
-
-    if user_message:
-        st.session_state.messages.append({"role": "user", "content": user_message})
-        # 채팅봇 로직
-        st.session_state.messages.append({"role": "assistant", "content": "임시채팅"})
-        # st.rerun()
+# 대화 히스토리 다시 표시
+chat_container.empty()  # 이전 메세지 지우기
+with chat_container.container():
+    st.markdown(
+        '<div class="chat-wrapper"><div class="chat-container">', unsafe_allow_html=True
+    )
+    for msg in st.session_state.messages:
+        display_chat_message(msg["role"], msg["content"])
+        st.markdown("</div></div>", unsafe_allow_html=True)
