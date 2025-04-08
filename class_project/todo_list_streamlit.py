@@ -4,6 +4,8 @@ from datetime import datetime, date
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 import time
 
+# import numpy
+
 # 페이지 기본 설정
 st.set_page_config(page_title="Todo List", layout="wide")
 
@@ -19,20 +21,23 @@ if "mode" not in st.session_state:
 if "edit_index" not in st.session_state:
     st.session_state.edit_index = None  # 수정할 항목 인덱스
 
+if "next_number" not in st.session_state:
+    st.session_state.next_number = 0
+
 # 앱 제목
 st.title("Todo-List")
 
 
 # 등록, 수정 버튼
-col1, col2, col3, col4, col5 = st.columns([2, 2, 2, 2, 2])
+col1, col2, col3, col4, col5, col6 = st.columns([2, 2, 2, 2, 1, 1])
 
 with col1:
-    if st.button(":heavy_plus_sign: 등록하기"):
+    if st.button("➕ 등록하기"):
         st.session_state.mode = "add"
         st.session_state.edit_index = None  # 새 항목을 등록하는거여서 인덱스 없음
 
 with col2:
-    if st.button(":pencil: 수정하기"):
+    if st.button("✏️ 수정하기"):
         st.session_state.mode = "edit"  # 세션을 수정 모드로 전환
 
 
@@ -59,11 +64,15 @@ if st.session_state.mode in ["add", "edit"]:
             if task:
                 now = datetime.now().strftime("%Y-%m-%d")
                 if st.session_state.mode == "add":
-                    next_number = len(st.session_state.task_list) + 1
+
+                    # st.session_state.next_number = len(st.session_state.task_list)
+                    st.session_state.next_number += 1
+                    # st.info(st.session_state.next_number)
+                    # time.sleep(1)
                     # 새 항목 추가
                     st.session_state.task_list.append(
                         {
-                            "번호": next_number,
+                            "번호": st.session_state.next_number,
                             "할 일": task,
                             "상태": "진행 중",
                             "등록 기간": now,
@@ -128,36 +137,45 @@ if st.session_state.task_list:
 
     # 선택 행 가져오기
     selected = grid_response["selected_rows"]
-    # if selected is not None and len(selected) > 0:
-    if isinstance(selected, list) and len(selected) > 0:
-        row = selected[0]
-        if isinstance(row, dict) and "번호" in row:
-            # selected_index = int(selected[0]["번호"] - 1)
-            selected_index = int(row["번호"] - 1)
-            st.session_state.edit_index = selected_index
+    if selected is not None and len(selected) > 0:
+        # row = df.values[0][0] - 1
+        row = list(selected.index).pop()
+        # st.info(row)
+        # st.info(df)
+        # st.info(df.to_numpy()[0][0])
+        selected_index = int(row)
+        st.session_state.edit_index = selected_index
 
     # 삭제 / 상태 변경 버튼
     with col3:
         if (
-            st.button(":x: 선택 항목 삭제")
+            st.button("❌ 선택 항목 삭제")
             and selected is not None
             and len(selected) > 0
         ):
+            # selected_index = df.values[0][0] - 1
             st.session_state.task_list.pop(selected_index)
             st.success("삭제되었습니다.")
+
             st.rerun()
 
     with col4:
-        if (
-            st.button(":white_check_mark: 상태 변경")
-            and selected is not None
-            and len(selected) > 0
-        ):
+        if st.button("✅ 상태 변경") and selected is not None and len(selected) > 0:
             current = st.session_state.task_list[selected_index]["상태"]
             st.session_state.task_list[selected_index]["상태"] = (
                 "완료" if current == "진행 중" else "진행 중"
             )
             st.success("상태가 변경되었습니다.")
             st.rerun()
+
+
 else:
     st.info("할 일이 없습니다. 등록해주세요.")
+
+with col5:
+    if st.button("🔁 화면 갱신"):
+        st.rerun()
+
+with col6:
+    if st.button("♻️ 번호 초기화"):
+        st.session_state.next_number = 0
