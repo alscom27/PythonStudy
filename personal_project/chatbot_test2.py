@@ -3,6 +3,9 @@ import streamlit as st
 from streamlit_chat import message
 from konlpy.tag import Okt
 import time
+import requests
+import random
+import re
 
 # 페이지 기본 설정
 st.set_page_config(page_title="ChatBot", layout="wide")
@@ -18,8 +21,8 @@ characters = {
         "윤남노",
         "https://i.namu.wiki/i/YEr_K9uN-yXUwvjjTwPKZRnJeSQAcJ01il5Byjt0nbLF49EoYFTpWlZMOBdNmD6ucIp0wyvoLVLe5bt5eFwjwg.webp",
     ],
-    "화제의 중심": [
-        "백종원",
+    "논란의 중심": [
+        "백모씨",
         "https://dimg.donga.com/wps/NEWS/IMAGE/2024/10/17/130239330.2.png",
     ],
 }
@@ -41,11 +44,14 @@ def chat_styles():
     margin : 5px;
     border-radius : 10px;
     /* 텍스트 길이 맞춰 말풍선 길이 조정 */
-    display : inline-block;
+    /*display : inline-block;*/
     max-width : 70%;
     word-wrap : break-word;
     display : flex;
     align-items : flex-start;
+    overflow-wrap : break-word;
+    height : auto;
+    overflow : auto;
 }
 
 .chat-avatar {
@@ -79,6 +85,7 @@ def chat_styles():
 
 .assistant-message {
     align-self : flex-start;
+    
 }
 
 .spinner-container {
@@ -141,6 +148,48 @@ def chat_styles():
     margin-left : 80px;
 }
 
+/*
+.chat-input {
+    position : fixed;
+    bottom : 50px;
+    left : 0;
+    right : 0;
+    background-color : #0e1117;
+    padding : 10px;
+    /* z-index : 100; */
+}
+
+.chat-input-textarea {
+    margin : 0, 10px;
+    width : 80%;
+    min-height : 40px;
+    resize : none;
+}
+
+.chat-input-wrapper {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #1e1e1e;
+    padding: 10px;
+    border-top: 1px solid #555;
+    z-index: 100;
+}
+
+#chat-input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 16px;
+    resize: none;
+    height: 50px;
+    background-color: #2c2c2c;
+    color: #fff;
+    border: none;
+    outline: none;
+}
+*/
 </style>   
 """,
         unsafe_allow_html=True,
@@ -152,8 +201,7 @@ def display_chat_message(role, content, avatar_url):
     bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
     message_class = "user-message" if role == "user" else "assistant-message"
     st.markdown(
-        f"""
-                <div class="chat-bubble {bubble_class} {message_class}">
+        f"""<div class="chat-bubble {bubble_class} {message_class}">
                 <img src="{avatar_url}" class="chat-avatar">
                 <div>{content}</div>
                 </div>
@@ -162,35 +210,132 @@ def display_chat_message(role, content, avatar_url):
     )
 
 
-def show_center_spinner():
-    st.markdown(
-        """
-        <div style='display:flex; justify-content:center; align-items:center; height:100px;'>
-            <div class="loader"></div>
-        </div>
-        <style>
-        .loader {
-          border: 8px solid #f3f3f3;
-          border-top: 8px solid #555;
-          border-radius: 50%;
-          width: 40px;
-          height: 40px;
-          animation: spin 1s linear infinite;
-        }
+# 로딩 화면에 표시
+# def show_center_spinner():
+#     st.markdown(
+#         """
+#         <div style='display:flex; justify-content:center; align-items:center; height:100px;'>
+#             <div class="loader"></div>
+#         </div>
+#         <style>
+#         .loader {
+#           border: 8px solid #f3f3f3;
+#           border-top: 8px solid #555;
+#           border-radius: 50%;
+#           width: 40px;
+#           height: 40px;
+#           animation: spin 1s linear infinite;
+#         }
 
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-        </style>
-    """,
-        unsafe_allow_html=True,
-    )
+#         @keyframes spin {
+#           0% { transform: rotate(0deg); }
+#           100% { transform: rotate(360deg); }
+#         }
+#         </style>
+#     """,
+#         unsafe_allow_html=True,
+#     )
+
+
+# json 파싱 함수
+def json_parsing():
+    # 인증키
+    service_key = "71efe28b43424ed79f88"
+    # api 요청 주소
+    url = f"http://openapi.foodsafetykorea.go.kr/api/{service_key}/COOKRCP01/json/1/100"
+    # 요청 보내기
+    response = requests.get(url)
+
+    # 응답 확인
+    if response.status_code == 200:
+        data = response.json()
+
+        items = data["COOKRCP01"]["row"]
+    else:
+        print("API 요청 실패 :", response.status_code)
+
+    return items if response.status_code == 200 else response.status_code
+
+
+# 단어가 한글자만 포함되도 매치 점수가 올라서 정확히 일차하면 카운트되게 수정
+def word_in_text(word, text):
+    return re.search(rf"\b{re.escape(word)}\b", text) is not None
 
 
 # 대화 생성 함수
-def generate_conversation():
-    pass
+def generate_conversation(user_input):
+    assistant_content = ""
+    # 심심하니까 랜덤 문구들
+    random_content = [
+        "몇 가지 추천 레시피를 알려드릴게요. 😄\n",
+        "추천 레시피를 알려드리겠습니다! 😎\n",
+        "음...몇 가지 추천 요리들을 알려드릴게요. 🤔\n",
+    ]
+    # 매치 점수 저장 리스트
+    scored_items = []
+
+    # 사용자 대화내용 분석
+    okt = Okt()
+    tokens = okt.pos(user_input, stem=True)
+
+    # 사용자 대화내용 키워드 분류
+    nouns = [word for word, tag in tokens if tag == "Noun"]
+    verbs = [word for word, tag in tokens if tag == "Verb"]
+
+    # 형태소 분석기가 분석한 굽다와 json데이터의 굽기 가 매치 되지않아서 기를 다로 수정
+    verb_methods = [verb[:1] + "기" for verb in verbs if verb.endswith("다")]
+
+    # 데이터 가져오기
+    items = json_parsing()
+    # 데이터 돌면서 매치 점수 계산
+    for item in items:
+        score = 0
+        name = item["RCP_NM"]
+        ingredient = item["RCP_PARTS_DTLS"]
+        method = item["RCP_WAY2"]
+
+        # 음식명과 명사 키워드 일치시 매치점수 +1
+        if any(word_in_text(noun, name) for noun in nouns):
+            score += 1
+        # 재료와 명사 일치시
+        if any(word_in_text(noun, ingredient) for noun in nouns):
+            score += 1
+        # 조리방법과 동사 키워드 일치시
+        if any(verb_method in method for verb_method in verb_methods):
+            score += 1
+
+        # 매치점수가 0보다 큰 것(언급된건) 전부 리스트로 등록
+        if score > 0:
+            scored_items.append((score, item))
+    # 매치점수 높은 순으로 정렬
+    # 키를 기준으로 내림차순
+    scored_items.sort(key=lambda x: x[0], reverse=True)
+
+    # 매치 점수 높은 5개 출력
+    top_items = scored_items[:5]
+
+    # 추천 레시피가 없으면
+    if bool(top_items) == False:
+        assistant_content = "추천드릴 레시피가 없습니다. 😢\n"
+    # 추천 레시피가 있으면
+    else:
+        # randomint(x,y) x부터 y이하...
+        assistant_content += (
+            f"{random_content[random.randint(0,len(random_content)-1)]}"
+        )
+        for score, item in top_items:
+            # 매치점수 : {score}\n
+            assistant_content += f"""
+✅ 매치 점수 : {score}\n
+📋 요리명 : {item['RCP_NM']}\n
+재료 : {item['RCP_PARTS_DTLS']}\n
+조리법 : {item['RCP_WAY2']}\n
+{'-'*20}\n
+
+"""
+
+    assistant_content += "\n💡 더 궁금하신게 있으면 물어봐주세요!"
+    return assistant_content
 
 
 st.title("🧠 챗봇")
@@ -286,26 +431,31 @@ with main_col2:
 
     # 대화 처리 단계
     elif st.session_state.stage == 2:
+        # st.markdown(
+        #     '<div class="chat-input-wrapper"><textarea id="chat-input" class="chat-input-textarea" place-holder="대화를 입력하세요:">',
+        #     unsafe_allow_html=True,
+        # )
         user_input = st.chat_input("대화를 입력하세요:", key="input_conversation")
+        st.markdown("</div>", unsafe_allow_html=True)
         if user_input:
             st.session_state.messages.append({"role": "user", "content": user_input})
-            # with st.spinner("답변 생성 중...잠시만 기다려주세요."):
-            #     show_center_spinner()
-            #     time.sleep(10)
-            response = generate_conversation()
+            with st.spinner("답변 생성 중...잠시만 기다려주세요."):
+                # show_center_spinner()
+                time.sleep(2)
+            response = generate_conversation(user_input)
             st.session_state.messages.append({"role": "assistant", "content": response})
 
     # 대화 히스토리 다시 표시
     chat_container.empty()  # 이전 메세지 지우기 ???
     with chat_container.container():
         if st.session_state.messages == False:
-            with st.spinner("답변 생성 중...잠시만 기다려주세요."):
-                # show_center_spinner()
-                time.sleep(3)
-        st.markdown(
-            '<div class="chat-wrapper"><div class="chat-container">',
-            unsafe_allow_html=True,
-        )
+            # with st.spinner("답변 생성 중...잠시만 기다려주세요."):
+            #     # show_center_spinner()
+            #     time.sleep(3)
+            st.markdown(
+                '<div class="chat-wrapper"><div class="chat-container">',
+                unsafe_allow_html=True,
+            )
         for msg in st.session_state.messages:
             display_chat_message(
                 msg["role"],
