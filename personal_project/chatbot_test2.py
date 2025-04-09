@@ -7,6 +7,10 @@ import requests
 import random
 import re
 
+# pip install transformers sentencepiece torch
+from transformers import pipeline
+
+
 # 페이지 기본 설정
 st.set_page_config(page_title="ChatBot", layout="wide")
 
@@ -196,6 +200,53 @@ def chat_styles():
     )
 
 
+# 사이드바 대화내용 요약
+def load_summarizer():
+    return pipeline("summarization", model="digit82/kobart-summarization")
+
+
+# 대화내용 요약
+def summarize_conversation(messages, max_len=50):
+    # 대화 요약 생성중 로딩?
+    summarizer = load_summarizer()
+    # 사용자/어시스턴트 내용을 전부 합친 뒤
+    # full_text = "\n".join([f"{msg['role']}: {msg['content']}" for msg in messages])
+    full_text = "\n".join([f"{messages[1]["content"]}"])
+    # full_text = "\n".join(
+    #     [
+    #         f"{messages[i]['role']}: {messages[i]['content']}"
+    #         for i in range(1, len(messages) - 1)
+    #     ]
+    # )
+    # 너무 길면 잘라주고
+    full_text = full_text[:1024]  # 너무 길면 자르기
+
+    prompt_text = (
+        f"다음 대화 내용을 보고, 한 문장짜리 매우 짧은 한국어 제목을 만들어주세요. "
+        f"실제 존재하는 단어만 사용하고, 의미 없는 조합은 피해주세요.\n\n"
+        f"{full_text}"
+    )
+    # f"'{full_text}' 이 문장을 바탕으로 중복되지 않는 10자 이하의 제목을 만들어 주세요." 2
+    # f"다음 대화를 보고 핵심 키워드로 짧은 제목 한 문장을 한국어로 만들어 주세요." 1
+    # f"가능하다면 15자 이하로 해주세요. 대화 내용:\n{full_text}"1
+    # max_length, min_length 조정
+    summary = summarizer(full_text, max_length=15, min_length=10, do_sample=False)
+    # 1차 결과에서 한 번 더 2차 요약을 진행하거나, 혹은 그냥 summary[0]["summary_text"]를 title로 써도 가능.
+    # 만약 너무 길다면 다시 잘라주는 로직 추가해도 됨.
+    # return summary[0]["summary_text"] # 수정 전
+
+    raw_title = summary[0]["summary_text"]
+    # 2차로 짧게 다듬어 달라고 프롬프트를 넣어 재요약(더 짧고 간결한 문장을 위해)
+    second_prompt = f"'{raw_title}' 라는 문장을 15자 이하로 더 간결하게 줄여주세요."
+    second_summary = summarizer(
+        second_prompt, max_length=10, min_length=5, do_sample=False
+    )
+
+    # final_title = second_summary[0]["summary_text"]
+    final_title = summary[0]["summary_text"]
+    return final_title
+
+
 # 말풍선 스타일 메세지 표시 함수
 def display_chat_message(role, content, avatar_url):
     bubble_class = "user-bubble" if role == "user" else "assistant-bubble"
@@ -366,9 +417,30 @@ main_col1, main_col2 = st.columns([1, 9])
 # 사이드바 비율
 # 대화 목록 표시
 with st.sidebar:
-    st.write("#### 대화 내용")
-    if st.session_state.chat_storage:
-        st.write("대화내용들 들어갈곳")
+    st.write("#### 💬 대화 목록")
+    if st.button("➕ 새 대화"):
+        st.session_state.stage = 1
+        st.rerun()
+        if st.session_state.chat_storage:
+            # 사이드바 비율
+            # 대화 목록 표시
+            with st.spinner("요약 중..."):
+                # summary = summarize_conversation(st.session_state.messages)
+                # st.markdown(f"> {summary}")
+                for i, chat in enumerate(st.session_state.chat_storage):
+                    if st.button(chat["title"], key=f"load_chat_{i}"):
+                        st.session_state.messages = chat["messages"].copy()
+                        st.rerun()
+
+#     if st.button("📝 지금까지 대화 요약하기"): 1
+#         if st.session_state.messages:
+#             with st.spinner("요약 중..."):
+#                 summary = summarize_conversation(st.session_state.messages)
+#                 st.success("요약 결과:")
+#                 st.markdown(f"> {summary}")
+#         else:
+#             st.info("요약할 대화가 없습니다.")
+
 
 # 메인 뷰 비율
 with main_col2:
@@ -444,6 +516,30 @@ with main_col2:
                 time.sleep(2)
             response = generate_conversation(user_input)
             st.session_state.messages.append({"role": "assistant", "content": response})
+            title = summarize_conversation(st.session_state.messages)
+            st.session_state.chat_storage.append(
+                {"title": title, "messages": st.session_state.messages.copy()}
+            )
+
+            if st.session_state.chat_storage:
+                # 사이드바 비율
+                # 대화 목록 표시
+                with st.sidebar:
+                    with st.spinner("요약 중..."):
+                        # summary = summarize_conversation(st.session_state.messages)
+                        # st.markdown(f"> {summary}")
+                        for i, chat in enumerate(st.session_state.chat_storage):
+                            if st.button(chat["title"], key=f"load_chat_{i}"):
+                                st.session_state.messages = chat["messages"].copy()
+                                st.rerun()
+
+            # if st.session_state.messages: 1
+            #     with st.spinner("요약 중..."):
+            #         summary = summarize_conversation(st.session_state.messages)
+            #         # st.success("요약 결과:")
+            #         st.markdown(f"> {summary}")
+            # else:
+            #     st.info("요약할 대화가 없습니다.")
 
     # 대화 히스토리 다시 표시
     chat_container.empty()  # 이전 메세지 지우기 ???
