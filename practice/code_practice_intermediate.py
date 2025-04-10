@@ -4,6 +4,8 @@
 
 
 # 계속, 종료 메뉴
+
+
 def menu_se():
     print("=" * 20)
     print(
