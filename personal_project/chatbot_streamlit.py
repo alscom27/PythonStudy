@@ -1,10 +1,13 @@
 # streamlit을 활용한 챗봇
+#  pip install streamlit
 import streamlit as st
-from konlpy.tag import Okt
+from konlpy.tag import Okt  # jvm으로 돌아가는거기 때문에 바다야함 1.8대 추천
 import time
 import requests
 import random
 import re
+
+# pip install transformers sentencepiece torch
 from transformers import pipeline
 
 # 페이지 기본 설정
@@ -91,7 +94,7 @@ def summarize_conversation(messages):
     return summary[0]["summary_text"]
 
 
-# 요리명으로 대화제목 만들기 위에 summarizer가 너무 멍청함...
+# 요리명으로 대화제목 만들기.. 위에 summarizer가 너무 멍청함...
 def generate_title_from_recipes(response_text):
     matches = re.findall(r"📋 요리명 : (.+?)\n", response_text)
     if matches:
@@ -223,12 +226,16 @@ if "character" not in st.session_state:
 if "character_avatar_url" not in st.session_state:
     st.session_state.character_avatar_url = assistant_avatar_url
 
+if "saveed" not in st.session_state:
+    st.session_state.saved = False
+
 # 사이드바 (대화목록(대화제목), 새대화버튼, 대화목록 삭제 버튼)
 with st.sidebar:
     st.write("#### 💬 대화 목록")
     if st.button("➕ 새 대화"):
         st.session_state.messages = []
         st.session_state.stage = 1
+        st.session_state.saved = False
         st.rerun()
     for i, chat in enumerate(st.session_state.chat_storage):
         col1, col2 = st.columns([4, 1])
@@ -237,6 +244,7 @@ with st.sidebar:
                 st.session_state.messages = chat["messages"].copy()
                 st.session_state.character_avatar_url = chat.get("avatar")
                 st.session_state.stage = 2
+                st.session_state.saved = True
                 st.rerun()
         with col2:
             if st.button("🗑", key=f"delete_chat_{i}"):
@@ -281,13 +289,20 @@ elif st.session_state.stage == 2:
             time.sleep(2)
             response = generate_conversation(user_input)
         st.session_state.messages.append({"role": "assistant", "content": response})
-        # title = summarize_conversation(st.session_state.messages)
-        title = generate_title_from_recipes(response)
-        st.session_state.chat_storage.append(
-            {
-                "title": title,
-                "messages": st.session_state.messages.copy(),
-                "avatar": st.session_state.character_avatar_url,
-            }
-        )
+        if st.session_state.saved == False:
+            # title = summarize_conversation(st.session_state.messages)
+            title = generate_title_from_recipes(response)
+            st.session_state.chat_storage.append(
+                {
+                    "title": title,
+                    "messages": st.session_state.messages.copy(),
+                    "avatar": st.session_state.character_avatar_url,
+                }
+            )
+            st.session_state.saved = True
         st.rerun()
+
+
+# # ############# 개선 사항
+# 1. 매 채팅마다 제목이 붙는 현상
+# 2. 파싱해오는 json은 형태소 분석기를 거치지 않아서 불일치 하지 않아야하는 정보가 불일치되는 현상
