@@ -1,6 +1,12 @@
 # streamlit을 활용한 챗봇
 #  pip install streamlit
 import streamlit as st
+
+# pip install konlpy
+# + Java 기반으로 동작하는 분석기를 사용하기 때문에 JVM필요
+# 그래서 자바 설치하고 환경변수 잡음 (JDK 8버전이 제일 안정적)
+# konlpy : 한국어 형태소 분석을 파이썬에서 할 수 있게 해주는 오픈소스 NLP(자연어 처리) 라이브러리
+# 문장에서 단어 추출, 조사 분리, 품사 태깅, 명사만 추출 등을 함
 from konlpy.tag import Okt  # jvm으로 돌아가는거기 때문에 바다야함 1.8대 추천
 import time
 import requests
