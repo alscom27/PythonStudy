@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <style>
+        body{
+        }
+        table {
+            margin :0 auto;
+            text-align : center;
+            border-collapse : collapse;
+        }
+
+        table:hover{
+            cursor : point;
+            transform:rotate(360deg);
+            transition-duration : 5s;
+            transition-delay : 0.5s;
+        }
+    </style>
+    <body>
+        <table border="1">
+            {% for key, value in result.items() %}
+            <tr>
+                <th>{{key}}</th>
+                <td>{{value}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>
