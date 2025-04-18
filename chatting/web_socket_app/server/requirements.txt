@@ -1,0 +1,12 @@
+# fastapi
+# uvicorn
+# websockets
+# uuid
+
+fastapi
+uvicorn
+websockets
+uuid
+pymongo
+colorlog
+pydantic
