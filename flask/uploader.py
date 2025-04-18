@@ -12,6 +12,7 @@ def upload_file():
 @app.route("/uploader", methods=["POST"])
 def uploader_file():
     f = request.files["file"]
+
     f.save(f.filename)
     return "file uploaded successfully"
 
