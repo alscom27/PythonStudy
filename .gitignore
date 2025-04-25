@@ -1,0 +1,10 @@
+# 모델 및 대용량 파일 무시
+*.pb
+*.weights
+*.caffemodel
+*.pbtxt
+*.data-*
+*.tar.gz
+*.zip
+__pycache__/
+.DS_Store
